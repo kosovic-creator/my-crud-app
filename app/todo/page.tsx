@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react'
@@ -5,7 +6,10 @@ import { useState, useEffect } from 'react'
 export default function GetTodo() {
     const [todo, setTodo] = useState<{ id: number; title: string }[] | null>(null);
     const [error, setError] = useState<Error | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
     const router = useRouter();
+
     useEffect(() => {
         async function fetchTodo() {
             try {
@@ -21,12 +25,14 @@ export default function GetTodo() {
         }
         fetchTodo();
     }, []);
+
     if (error) {
         return <div>Error: {error.message}</div>;
     }
     if (!todo) {
         return <div>Loading...</div>;
     }
+
     function handleDelete(id: number) {
         fetch(`/api/todo/${id}`, {
             method: 'DELETE',
@@ -37,14 +43,19 @@ export default function GetTodo() {
                 }
                 return response.json();
             })
-            .then((data) => {
-                console.log('Deleted:', data);
+            .then(() => {
                 setTodo((prev) => prev ? prev.filter((t) => t.id !== id) : prev);
             })
             .catch((error) => {
                 console.error('Error deleting todo:', error);
             });
     }
+
+    // Pagination logic
+    const totalPages = Math.ceil(todo.length / itemsPerPage);
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const currentTodos = todo.slice(startIdx, startIdx + itemsPerPage);
+
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-gray-50 rounded-xl shadow-lg">
             <div className="flex justify-between items-center mb-6">
@@ -67,7 +78,7 @@ export default function GetTodo() {
                     </tr>
                 </thead>
                 <tbody>
-                    {todo.map((item: { id: number; title: string }) => (
+                    {currentTodos.map((item: { id: number; title: string }) => (
                         <tr key={item.id} className="hover:bg-gray-50 transition">
                             <td className="py-2 px-4 border-b">{item.id}</td>
                             <td className="py-2 px-4 border-b">{item.title}</td>
@@ -93,6 +104,32 @@ export default function GetTodo() {
                     ))}
                 </tbody>
             </table>
+            {/* Pagination controls */}
+            <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                >
+                    Prev
+                </button>
+                {[...Array(totalPages)].map((_, idx) => (
+                    <button
+                        key={idx}
+                        className={`px-3 py-1 rounded ${currentPage === idx + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                        onClick={() => setCurrentPage(idx + 1)}
+                    >
+                        {idx + 1}
+                    </button>
+                ))}
+                <button
+                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     )
 }

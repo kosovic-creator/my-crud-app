@@ -26,7 +26,24 @@ export default function GetTodo() {
     if (!todo) {
         return <div>Loading...</div>;
     }
-
+function handleDelete(id: number) {
+    fetch(`/api/todo/${id}`, {
+        method: 'DELETE',
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log('Deleted:', data);
+            setTodo((prev) => prev ? prev.filter((t) => t.id !== id) : prev);
+        })
+        .catch((error) => {
+            console.error('Error deleting todo:', error);
+        });
+}
   return (
       <div className="max-w-2xl mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-6 text-center">Todo List</h1>
@@ -47,27 +64,21 @@ export default function GetTodo() {
                       <button
                           className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition"
                           onClick={() => {
-                              fetch(`/api/todo/${item.id}`, {
-                                  method: 'DELETE',
-                              })
-                                  .then((response) => {
-                                      if (!response.ok) {
-                                          throw new Error('Network response was not ok');
-                                      }
-                                      return response.json();
-                                  })
-                                  .then((data) => {
-                                      console.log('Deleted:', data);
-                                      setTodo(todo.filter((t) => t.id !== item.id));
-                                  })
-                                  .catch((error) => {
-                                      console.error('Error deleting todo:', error);
-                                  });
+                              handleDelete(item.id);
                           }}
                       >
                           Delete
                       </button>
+                      <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition"
+                            onClick={() => {
+                                window.location.href = `/todo/add`;
+                            }}
+                        >
+                            Add
+                        </button>
                   </td>
+
               </tr>
           ))}
               </tbody>

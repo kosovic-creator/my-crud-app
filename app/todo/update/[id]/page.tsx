@@ -52,20 +52,34 @@ export default function Update() {
     }
 
     return (
-        <div>
-            <form onSubmit={(e) => {
-                e.preventDefault();
-                fetchUpdateTodo();
-            }}>
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter todo title"
-                />
-                <button type="submit">Update Todo</button>
-            </form>
-            {error && <p>Error: {error.message}</p>}
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+                <p className="text-2xl font-bold mb-6 text-center text-gray-800">Update Todo Page</p>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        fetchUpdateTodo();
+                    }}
+                >
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter todo title"
+                        className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition"
+                    >
+                        Update Todo
+                    </button>
+                </form>
+                {error && (
+                    <p className="mt-4 text-red-600 text-center">Error: {error.message}</p>
+                )}
+            </div>
         </div>
     );
 }

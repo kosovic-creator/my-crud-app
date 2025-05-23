@@ -1,10 +1,11 @@
 'use client'
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react'
 
 export default function GetTodo() {
     const [todo, setTodo] = useState<{ id: number; title: string }[] | null>(null);
     const [error, setError] = useState<Error | null>(null);
-
+    const router = useRouter();
     useEffect(() => {
         async function fetchTodo() {
             try {
@@ -45,24 +46,34 @@ export default function GetTodo() {
             });
     }
     return (
-        <div className="max-w-2xl mx-auto mt-10">
-            <h1 className="text-2xl font-bold mb-6 text-center">Todo List</h1>
+        <div className="max-w-2xl mx-auto mt-10 p-6 bg-gray-50 rounded-xl shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800">Todo List</h1>
+                <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow transition"
+                    onClick={() => {
+                        router.push(`/todo/add`);
+                    }}
+                >
+                    Add
+                </button>
+            </div>
             <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
                 <thead>
                     <tr>
-                        <th className="py-2 px-4 border-b bg-gray-100 text-left">ID</th>
-                        <th className="py-2 px-4 border-b bg-gray-100 text-left">Title</th>
-                        <th className="py-2 px-4 border-b bg-gray-100 text-left">Action</th>
+                        <th className="py-3 px-4 border-b bg-gray-100 text-left font-semibold text-gray-700">ID</th>
+                        <th className="py-3 px-4 border-b bg-gray-100 text-left font-semibold text-gray-700">Title</th>
+                        <th className="py-3 px-4 border-b bg-gray-100 text-left font-semibold text-gray-700">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {todo.map((item: { id: number; title: string }) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
+                        <tr key={item.id} className="hover:bg-gray-50 transition">
                             <td className="py-2 px-4 border-b">{item.id}</td>
                             <td className="py-2 px-4 border-b">{item.title}</td>
-                            <td className="py-2 px-4 border-b">
+                            <td className="py-2 px-4 border-b flex gap-2">
                                 <button
-                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition"
+                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-lg font-medium transition"
                                     onClick={() => {
                                         handleDelete(item.id);
                                     }}
@@ -70,23 +81,14 @@ export default function GetTodo() {
                                     Delete
                                 </button>
                                 <button
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition"
+                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-lg font-medium transition"
                                     onClick={() => {
-                                        window.location.href = `/todo/add`;
-                                    }}
-                                >
-                                    Add
-                                </button>
-                                <button
-                                    className="bg-green-800 hover:bg-green-400 text-white px-3 py-1 rounded transition"
-                                    onClick={() => {
-                                        window.location.href = `/todo/update/${item.id}`;
+                                        router.push(`/todo/update/${item.id}`);
                                     }}
                                 >
                                     Update
                                 </button>
                             </td>
-
                         </tr>
                     ))}
                 </tbody>
